@@ -1,0 +1,15 @@
+_Store
+.metadata
+.recommenders
+.settings
+.classpath
+.project
+target/
+bin/
+RemoteSystemsTempFiles/
+Servers/
+rebel.xml
+.mvn*
+mvnw*
+005-9-ambiente/
+~$*

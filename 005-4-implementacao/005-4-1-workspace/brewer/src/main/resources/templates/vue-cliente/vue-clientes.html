@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:data="http://www.thymeleaf.org/extras/data"
+	  layout:decorate="~{layout/LayoutPadrao}"
+	  xmlns:brewer="http://brewer.algaworks.com">
+<head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.1/vue.js"></script>
+</head>
+<body>
+	<div id="app">
+ 		 {{ message }}
+	</div>
+
+
+	<th:block layout:fragment="javascript-extra">
+		<script src="vue-clientes.js"></script>
+	</th:block>
+
+</body>
+</html>
