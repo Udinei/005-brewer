@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -164,10 +166,11 @@ public class VendasController {
 		return mvTabelaItensVenda(uuid);
 	}
 	
-	
+
 	@PutMapping("/item/{codigoCerveja}")
-	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoCerveja") Cerveja cerveja, Integer quantidade, String uuid){
-			tabelaItens.alterarQuantidadeItens(uuid, cerveja, quantidade);
+	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoCerveja") Cerveja cerveja, @RequestParam Integer quantidade, @RequestParam String uuid){
+		System.out.println(">>>>> UUid "+ uuid +"  Quantidade "+ quantidade + " cerveja " + cerveja);
+		tabelaItens.alterarQuantidadeItens(uuid, cerveja, quantidade);
 		
 		return mvTabelaItensVenda(uuid);
 	}
@@ -272,7 +275,8 @@ public class VendasController {
 		// se um uuid de sessao do usuario não foi criado quando da criacao ou edicao de uma venda   
 		if(StringUtils.isEmpty(venda.getUuid())){
 			 // entao gera aleatoreamente um uuid usando API UUID do javaUtil e seta na venda  
-			 venda.setUuid(UUID.randomUUID().toString()); //
+			 venda.setUuid(UUID.randomUUID().toString()); 
+		
 		 }
 	}
 			

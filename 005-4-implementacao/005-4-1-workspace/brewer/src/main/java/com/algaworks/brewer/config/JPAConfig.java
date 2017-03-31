@@ -30,34 +30,25 @@ import com.algaworks.brewer.repository.Cervejas;
 @EnableTransactionManagement
 public class JPAConfig {
 
-	
-	/** configura fonte de dados (dataSource) acessa context.xml */
-	@Profile("local")
-	@Bean
-	public DataSource dataSource(){
-		JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
-		dataSourceLookup.setResourceRef(true);
-		return dataSourceLookup.getDataSource("jdbc/brewerDB");
-	}
-	
-	/** Opção de Datasource em produção - Esse metodo nao esta sendo usado - Pool de conexoes */
-	@Profile("prod")
-	@Bean
-	public DataSource dataSourceProd() throws URISyntaxException {
-		URI jdbUri = new URI(System.getenv("JAWSDB_URL")); // recurso de BD da Amazon
-
-	    String username = jdbUri.getUserInfo().split(":")[0];
-	    String password = jdbUri.getUserInfo().split(":")[1];
-	    String port = String.valueOf(jdbUri.getPort());
-	    String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
-	    
-	    BasicDataSource dataSource = new BasicDataSource();
-	    dataSource.setUrl(jdbUrl);
-	    dataSource.setUsername(username);
-	    dataSource.setPassword(password);
-	    dataSource.setInitialSize(10);  // qtd de conexao
-	    return dataSource;
-	}
+//		
+//	/** Opção de Datasource em produção - Esse metodo nao esta sendo usado - Pool de conexoes */
+//	@Profile("prod")
+//	@Bean
+//	public DataSource dataSourceProd() throws URISyntaxException {
+//		URI jdbUri = new URI(System.getenv("JAWSDB_URL")); // recurso de BD da Amazon
+//
+//	    String username = jdbUri.getUserInfo().split(":")[0];
+//	    String password = jdbUri.getUserInfo().split(":")[1];
+//	    String port = String.valueOf(jdbUri.getPort());
+//	    String jdbUrl = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath();
+//	    
+//	    BasicDataSource dataSource = new BasicDataSource();
+//	    dataSource.setUrl(jdbUrl);
+//	    dataSource.setUsername(username);
+//	    dataSource.setPassword(password);
+//	    dataSource.setInitialSize(10);  // qtd de conexao
+//	    return dataSource;
+//	}
 	
 	// configura o JPA
 	@Bean
@@ -70,7 +61,7 @@ public class JPAConfig {
 		return adapter;
 	}
 	
-	// gerencia entidades
+	// gerencia consultas nativas 
 	@Bean
 	public EntityManagerFactory entityManagerFactory(DataSource dataSource, JpaVendorAdapter jpaVendorAdapter){
 	    LocalContainerEntityManagerFactoryBean factory= new LocalContainerEntityManagerFactoryBean();
