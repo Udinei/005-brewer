@@ -1,7 +1,5 @@
 package com.algaworks.brewer.controller;
 
-import java.util.Arrays;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -34,10 +32,14 @@ import com.algaworks.brewer.service.StatusUsuario;
 import com.algaworks.brewer.service.exception.EmailJaCadastradoException;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.SenhaObrigatoriaUsuarioException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/usuarios")
 public class UsuariosController {
+	
+	@Autowired
+	MessagesUtil messagesUtil;
 	
 	@Autowired
 	private Grupos grupos;
@@ -73,8 +75,8 @@ public class UsuariosController {
 		}
 		
 						
-		attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
-		
+		//attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso");
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salvo.sucesso", "Usuário"));
 		return new ModelAndView("redirect:/usuarios/novo");
 		
 	}

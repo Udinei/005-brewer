@@ -32,12 +32,15 @@ import com.algaworks.brewer.repository.filter.CidadeFilter;
 import com.algaworks.brewer.service.CadastroCidadeService;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.NomeCidadeJaCadastradoException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/cidades")
 public class CidadesController {
 	
-
+	@Autowired
+	MessagesUtil messagesUtil;
+	
 	@Autowired
 	private Cidades cidades;
 	
@@ -90,7 +93,10 @@ public class CidadesController {
 			
 		}
 		
-		attributes.addFlashAttribute("mensagem", "Cidade salva com sucesso!");
+		//attributes.addFlashAttribute("mensagem", "Cidade salva com sucesso!");
+		// envia msg para a view, da entidade "Estilo" salva com sucesso 
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salva.sucesso", "Cidade"));
+				
 		return new ModelAndView("redirect:/cidades/nova");
 		
 	}

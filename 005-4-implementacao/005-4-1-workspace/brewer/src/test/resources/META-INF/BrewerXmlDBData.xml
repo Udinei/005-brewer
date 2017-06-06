@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+ <!--Nota: Você tem que pedir suas tabelas no arquivo dbunit init na ordem correta. 
+     Por exemplo: se A tem um um-para-muitos para A e C tem um para muitos para B.
+  	 Você tem que definir A e C primeiro e depois B. Dbunit faz as linhas em ordem seguinte: A, C, B.
+   	 Dbunit irá limpar em ordem inversa: B, C, A. Isso vai funcionar. 
+     Mas quando você iria colocar B antes C e você tem restrições corretas,
+     ele tentará excluir as linhas de C antes das linhas de B que resultara em um erro
+     integridade.
+     -->
+<dataset>
+	<estado codigo="1"	nome="Acre" sigla="AC"/>
+	<estado codigo="2"	nome="Bahia" sigla="BA"/>
+	<estado codigo="3"	nome="Goias" sigla="GO"/>
+	<estado codigo="4"	nome="Minas Gerais" sigla="MG"/>
+	<estado codigo="5"	nome="Santa Catarina" sigla="SC"/>
+	<estado codigo="6"	nome="São Paulo" sigla="SP" />
+	
+	<cidade codigo="1" nome="Rio Branco" codigo_estado="1" />
+	<cidade codigo="2" nome="Cruzeiro do Sule" codigo_estado="1" />
+	<cidade codigo="3" nome="Salvador" codigo_estado="2" />
+	<cidade codigo="4" nome="Porto Seguro" codigo_estado="2" />
+	<cidade codigo="5" nome="Santana" codigo_estado="2" />
+	<cidade codigo="6" nome="Goiânia" codigo_estado="3" />
+	<cidade codigo="7" nome="Itumbiara" codigo_estado="3" />
+	<cidade codigo="8" nome="Novo Brasil" codigo_estado="3" />
+	<cidade codigo="9" nome="Belo Horizonte" codigo_estado="4" />
+	<cidade codigo="10" nome="Uberlândia" codigo_estado="4" />
+	<cidade codigo="11" nome="Montes Claros" codigo_estado="4" />
+	<cidade codigo="12" nome="Florianapolis" codigo_estado="5" />
+	<cidade codigo="13" nome="Criciúma" codigo_estado="5" />
+	<cidade codigo="14" nome="Camboriú" codigo_estado="5" />
+	<cidade codigo="15" nome="Lages" codigo_estado="5" />
+	<cidade codigo="16" nome="São Paulo" codigo_estado="6" />
+	<cidade codigo="17" nome="Ribeirão Preto" codigo_estado="6" />
+	<cidade codigo="18" nome="Campinas" codigo_estado="6" />
+	<cidade codigo="19" nome="Santos" codigo_estado="6" />
+	
+	<cliente
+		codigo="1"
+		nome="Admin"
+		tipo_pessoa="JURIDICA"
+		cpf_cnpj="87725575000150"
+		telefone=""
+		email="udineisilva@gmail.com"
+		logradouro="Rua da vitoria"
+		numero="7"
+		complemento="Prox. Bar Nantes"
+		cep="79091720"
+		codigo_cidade="6"
+	 />
+	
+	<cliente />
+	<cerveja />
+	<venda />
+	<item_venda />
+	
+	<!-- 
+	<usuario/>
+	<usuario_grupo/>
+	-->
+	
+</dataset>

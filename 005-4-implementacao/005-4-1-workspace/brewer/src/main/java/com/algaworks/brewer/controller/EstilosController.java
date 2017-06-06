@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,10 +27,14 @@ import com.algaworks.brewer.repository.filter.EstiloFilter;
 import com.algaworks.brewer.service.CadastroEstiloService;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.NomeEstiloJaCadastradoException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/estilos")  // mapeamento do controller para evitar ter que colocar em cada metodo "/estilos"
 public class EstilosController {
+	
+	@Autowired
+	MessagesUtil messagesUtil;
 	
 	@Autowired
 	CadastroEstiloService cadastroEstiloService;
@@ -64,7 +67,8 @@ public class EstilosController {
 		}
 		
 	        
-		attributes.addFlashAttribute("mensagem", "Estilo salvo com sucesso!");
+		//attributes.addFlashAttribute("mensagem", "Estilo salvo com sucesso!");
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salvo.sucesso", "Estilo"));
 		return new ModelAndView("redirect:/estilos/novo");
 	}
 	

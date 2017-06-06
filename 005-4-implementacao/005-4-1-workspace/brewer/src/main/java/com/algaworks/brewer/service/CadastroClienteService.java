@@ -12,6 +12,7 @@ import com.algaworks.brewer.model.Cliente;
 import com.algaworks.brewer.repository.Clientes;
 import com.algaworks.brewer.service.exception.CpfCnpjClienteJaCadastradoException;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Service
 public class CadastroClienteService {
@@ -19,12 +20,15 @@ public class CadastroClienteService {
 	@Autowired
 	private Clientes clientes;
 	
+	@Autowired
+	MessagesUtil messagesUtil;
+	
 	@Transactional
 	public void salvar(Cliente cliente){
 		Optional<Cliente> clienteExistente = clientes.findByCpfOuCnpj(cliente.getCpfOuCnpjSemFormatacao());
 				
 		if(clienteExistente.isPresent() && !clienteExistente.get().equals(cliente)){
-			throw new CpfCnpjClienteJaCadastradoException("CPF/CNPJ já cadastrado");
+			throw new CpfCnpjClienteJaCadastradoException(messagesUtil.getMessage("msg.error.atrib.ent.ja.cadastrado","CPF/CNPJ", "cliente"));
 		}
 		
 		isEnderecoSemCidadeInformada(cliente);

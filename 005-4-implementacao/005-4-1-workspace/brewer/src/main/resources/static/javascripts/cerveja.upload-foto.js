@@ -32,8 +32,10 @@ Brewer.UploadFoto = (function(){
 				beforeSend: adicionarCsrfToken,    // antes de executar o envio do ajax
 				loadstart: onLoadStart.bind(this)
 	        }
-	
+			
+			
 			UIkit.uploadSelect($('#upload-select'), settings);
+						
 			UIkit.uploadDrop(this.uploadDrop, settings);
 			
 			// Apos a validacao dos campos da tela, se usuario já selecionou uma foto, o campo urlFoto (hidden) foi preenchido 
@@ -42,7 +44,7 @@ Brewer.UploadFoto = (function(){
 				renderizarFoto.call(this, {  // call e this, forca para que funcao seja executada no context da funcao
 						nome: this.inputNomeFoto.val(),
 						contentType: this.inputContentType.val(),
-						url: this.inputUrlFoto.val()});  // obtem a url da foto, carreganda anteriormente
+						url: this.inputUrlFoto.val()});  // obtem a url da foto, carregada anteriormente
 			}
 			
 	}
@@ -68,8 +70,17 @@ Brewer.UploadFoto = (function(){
 		this.inputContentType.val(resposta.contentType);
 			
 		this.uploadDrop.addClass('hidden');  // esconde a div upload-drop que contem o link de selecao da foto
+
+		// monta url da foto, com a url atual para exibição correta da foto
+		var newURL =  window.location.protocol + "//" + 
+			          window.location.host + 
+			          "/fotos/" +
+			          resposta.nome;
+
+		var htmlFotoCerveja = this.template({url: newURL});
 		
-		var htmlFotoCerveja = this.template({url: resposta.url}); // seta a url da foto na variavel {{url}} do handlebar, que esta no hmtl fotoCerveja   
+		
+		//var htmlFotoCerveja = this.template({url: resposta.url}); // seta a url da foto na variavel {{url}} do handlebar, que esta no hmtl fotoCerveja
 		this.containerFotoCerveja.append(htmlFotoCerveja);        // insere o html fotoCerveja no lugar da div upload-drop que esta hidden, que fica
 		                                                          // dentro da div com a classe .js-container-foto-cerveja 
 				

@@ -12,11 +12,15 @@ import com.algaworks.brewer.model.Cidade;
 import com.algaworks.brewer.repository.Cidades;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.NomeCidadeJaCadastradoException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 
 @Service
 public class CadastroCidadeService  {
 
+	@Autowired
+	MessagesUtil messagesUtil;
+	
 	@Autowired
 	private Cidades cidades;
 	
@@ -27,7 +31,8 @@ public class CadastroCidadeService  {
 		Optional<Cidade> cidadeExistente = cidades.findByNomeIgnoreCaseAndEstado(cidade.getNome(), cidade.getEstado());
 		
 		if(cidadeExistente.isPresent() && !cidadeExistente.get().equals(cidade)){
-			throw new NomeCidadeJaCadastradoException("Nome da cidade já cadastrada");
+			//throw new NomeCidadeJaCadastradoException("Nome da cidade já cadastrada");
+			throw new NomeCidadeJaCadastradoException(messagesUtil.getMessage("msg.error.atrib.ent.ja.cadastrada", "Nome", "cidade"));
 		}
 		
 		
