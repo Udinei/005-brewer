@@ -15,10 +15,14 @@ import com.algaworks.brewer.repository.Usuarios;
 import com.algaworks.brewer.service.exception.EmailJaCadastradoException;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.SenhaObrigatoriaUsuarioException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Service
 public class CadastroUsuarioService {
 
+	@Autowired
+	MessagesUtil messagesUtil;
+	
 	@Autowired
 	private Usuarios usuarios;
 	
@@ -32,7 +36,8 @@ public class CadastroUsuarioService {
 		
 		// O email do usuario ja existe cadastrado e o usuario e diferente, Então envia msg com exception  
 		if(usuarioExistente.isPresent() && !usuarioExistente.get().equals(usuario)){
-		    throw new EmailJaCadastradoException("E-mail já cadastrado");	
+		    throw new EmailJaCadastradoException("E-mail já cadastrado");
+
 		}
 		
 		
@@ -52,7 +57,14 @@ public class CadastroUsuarioService {
 		// 	caso contrario se Usuario já cadastrado, e não alterou a senha
 		//	seta a mesma senha do usuario recuperada do banco, ja criptografada
 		}else if(StringUtils.isEmpty(usuario.getSenha())) {
-			usuario.setSenha(usuarioExistente.get().getSenha());
+			Usuario tmp = new Usuario();
+			if(usuario.getCodigo() != null){
+				 // recupera usuario do bd
+				 tmp = usuarios.findOne(usuario.getCodigo());
+				 usuario.setSenha(tmp.getSenha());
+				 usuario.setConfirmacaoSenha(tmp.getSenha());
+			}
+						
 		}
 		
 		

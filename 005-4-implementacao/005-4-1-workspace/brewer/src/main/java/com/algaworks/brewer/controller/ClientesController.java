@@ -32,10 +32,14 @@ import com.algaworks.brewer.repository.filter.ClienteFilter;
 import com.algaworks.brewer.service.CadastroClienteService;
 import com.algaworks.brewer.service.exception.CpfCnpjClienteJaCadastradoException;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/clientes")
 public class ClientesController {
+	
+	@Autowired
+	MessagesUtil messagesUtil;
 	
 	@Autowired
 	private Estados estados;
@@ -72,7 +76,8 @@ public class ClientesController {
 			
 		}
 		
-		attributes.addFlashAttribute("mensagem", "Cliente salvo com sucesso!");
+		//attributes.addFlashAttribute("mensagem", "Cliente salvo com sucesso!");
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salvo.sucesso", "Cliente"));
 		return new ModelAndView("redirect:/clientes/novo");
 		
 	}

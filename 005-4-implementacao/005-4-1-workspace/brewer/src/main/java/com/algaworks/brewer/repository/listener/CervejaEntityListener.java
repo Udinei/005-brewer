@@ -1,10 +1,11 @@
 package com.algaworks.brewer.repository.listener;
 
+import java.net.URI;
+
 import javax.persistence.PostLoad;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.storage.FotoStorage;
@@ -19,13 +20,21 @@ public class CervejaEntityListener {
 //	@Autowired
 //	private FotoStorage fotoStorage;
 	
-	// final no parametro do metodo nao permite implementar a expressao - cerveja = null;
+	
+	/** 
+	 * Esse metodo exibe o thumbnail da foto ou Mock da foto na listagem, para tanto as imagem devem estar gravadas
+	 * na pasta do sistema .fotobrewer inclusive a imagem do mock cerveja-mock.png 
+	 *  Nota: A expressao final no parametro do metodo, nao permite implementar a expressao - cerveja = null;
+	 * */
 	@PostLoad
 	public void postLoad(final Cerveja cerveja){
 		// resolve no contexto corrente as injeção de dependencia, para todos os @Autowired da classe 
 		//SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-		
-		cerveja.setUrlFoto(FotoStorage.URL + cerveja.getFotoOrMock());
-		cerveja.setUrlThumbnailFoto(FotoStorage.URL + FotoStorage.THUMBNAIL_PREFIX + cerveja.getFotoOuMock());
+        
+		// TODO: foi removido da url da foto  FotoStorage.getURL, que apontava para localhost  
+		// recupera a foto da cerveja. A url sera concatenada dinamicamente com uso de javascript, ao ser exibida a imagem 
+		cerveja.setUrlFoto(cerveja.getFotoOuMock());
+		cerveja.setUrlThumbnailFoto(FotoStorage.THUMBNAIL_PREFIX + cerveja.getFotoOuMock());
+
 	}
 }

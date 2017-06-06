@@ -12,9 +12,13 @@ import com.algaworks.brewer.model.Estilo;
 import com.algaworks.brewer.repository.Estilos;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
 import com.algaworks.brewer.service.exception.NomeEstiloJaCadastradoException;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Service
 public class CadastroEstiloService {
+	
+	@Autowired
+	MessagesUtil messagesUtil;
 	
 	@Autowired
 	private Estilos estilos;
@@ -29,7 +33,7 @@ public class CadastroEstiloService {
 		
 		// objeto com o atributo pesquisado existe, e seu identificador é igual ao do objeto a salvar   
 		if(estiloExistente.isPresent() && !estiloExistente.get().equals(estilo)){
-			throw new NomeEstiloJaCadastradoException("Nome do estilo já cadastrado"); // entao lanca exceptiono
+			throw new NomeEstiloJaCadastradoException(messagesUtil.getMessage("msg.error.atrib.ent.ja.cadastrado", "Nome", "estilo")); // entao lanca exceptiono
 		}
 		
 		// salva um novo objeto, ou altera caso identificador do objeto ja existir 

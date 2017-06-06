@@ -1,5 +1,7 @@
 package com.algaworks.brewer.controller;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -31,11 +35,20 @@ import com.algaworks.brewer.repository.Estilos;
 import com.algaworks.brewer.repository.filter.CervejaFilter;
 import com.algaworks.brewer.service.CadastroCervejaService;
 import com.algaworks.brewer.service.exception.ImpossivelExcluirEntidadeException;
+import com.algaworks.brewer.service.exception.SkuCervejaJaCadastradaException;
+import com.algaworks.brewer.util.MakeUrl;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/cervejas")
 public class CervejasController {
-		
+	
+	@Autowired
+	MakeUrl url;
+	
+	@Autowired
+	MessagesUtil messagesUtil;
+	
 	@Autowired
 	private Estilos estilos;
 	
@@ -44,11 +57,13 @@ public class CervejasController {
 	
 	@Autowired
 	private Cervejas cervejas; 
-    
-	
+
+	private String urlFinalFoto = "";
+		
 	@RequestMapping("/nova")
 	public ModelAndView nova(Cerveja cerveja){
 		ModelAndView mv = new ModelAndView("cerveja/CadastroCerveja");
+		
 		mv.addObject("sabores", Sabor.values());
 		mv.addObject("estilos", estilos.findAll());
 		mv.addObject("origens", Origem.values());
@@ -62,12 +77,22 @@ public class CervejasController {
 	*/
 	@PostMapping(value = { "/nova", "{\\d+}" })
 	public ModelAndView salvar(@Valid Cerveja cerveja, BindingResult result, RedirectAttributes attributes){
-		if(result.hasErrors()){
+		if(result.hasErrors()){ // se tem erros na pagina 
 			return nova(cerveja); //coloca o objeto vindo da view na requisicao
 		}
 		
-	    cadastroCervejaService.salvar(cerveja);    
-		attributes.addFlashAttribute("mensagem", "Cerveja salva com sucesso!"); // injeta msg pra view
+		try{	
+		    cadastroCervejaService.salvar(cerveja); 
+		    
+		} catch (SkuCervejaJaCadastradaException e){ //captura a exception
+	        // nome e atributo que deu problema na regra de negocio
+			result.rejectValue("sku", e.getMessage(), e.getMessage()); // injeta mensagem na view do objeto
+			return nova(cerveja);  // retorna objeto na view e exibe mensagem de dados duplicados
+		}
+	
+		//attributes.addFlashAttribute("mensagem", "Cerveja salva com sucesso!"); // injeta msg pra view
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salva.sucesso", "Cerveja"));
+	
 		return new ModelAndView("redirect:/cervejas/nova"); // carrega uma nova pagina com uma nova requisição
 	}
 	
@@ -76,15 +101,19 @@ public class CervejasController {
 	@GetMapping
 	public ModelAndView pesquisar(CervejaFilter cervejaFilter, BindingResult result,
 			@PageableDefault(size=2) Pageable pageable, HttpServletRequest httpServletRequest){
+					
+        // monta url final da foto da tabela de intens
+   		urlFinalFoto = url.urlBrowser() + "/fotos/"; 
+
 		ModelAndView mv = new ModelAndView("cerveja/PesquisaCervejas");
 		mv.addObject("sabores", Sabor.values());
 		mv.addObject("estilos", estilos.findAll());
 		mv.addObject("origens", Origem.values());
-				
+		mv.addObject("urlFinalFoto", urlFinalFoto);		
 		
 	    PageWrapper<Cerveja> paginaWrapper = new PageWrapper<>(cervejas.filtrar(cervejaFilter, pageable)
 	    		, httpServletRequest);	
-		
+			    
 	    mv.addObject("pagina", paginaWrapper);
 				
 		return mv;

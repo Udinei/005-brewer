@@ -1,5 +1,7 @@
 package com.algaworks.brewer.controller;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,10 +22,11 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -43,10 +46,18 @@ import com.algaworks.brewer.repository.filter.VendaFilter;
 import com.algaworks.brewer.security.UsuarioSistema;
 import com.algaworks.brewer.service.CadastroVendaService;
 import com.algaworks.brewer.session.TabelasItensSession;
+import com.algaworks.brewer.util.MakeUrl;
+import com.algaworks.brewer.util.MessagesUtil;
 
 @Controller
 @RequestMapping("/vendas")
 public class VendasController {
+			
+	@Autowired
+	MakeUrl url;
+	
+	@Autowired
+	MessagesUtil messagesUtil;
 	
 	@Autowired
 	private Cervejas cervejas;
@@ -67,6 +78,8 @@ public class VendasController {
 	@Autowired
 	private Mailer mailer;
 	
+	private String urlFinalFoto = "";
+	
 	/** Adiciona validade ao controller.
 	 *  Ao encontrar um @Valid em qualquer metodo dessa classe, usa esse validador para validar os atributos
 	 *  o parametro passado ao @InitBinder "venda" informa que esse validador é somente para classe Venda, caso
@@ -76,8 +89,7 @@ public class VendasController {
 	   binder.setValidator(vendaValidator);	
 	}
 	
-	
-	
+		
 	
 	@GetMapping("/nova")
 	public ModelAndView nova(Venda venda){
@@ -113,7 +125,8 @@ public class VendasController {
 		venda.setUsuario(usuarioSistema.getUsuario());
 		
 		cadastroVendaService.salvar(venda);
-		attributes.addFlashAttribute("mensagem", "Venda salva com sucesso" );
+		//attributes.addFlashAttribute("mensagem", "Venda salva com sucesso" );
+		attributes.addFlashAttribute("mensagem", messagesUtil.getMessage("msg.salva.sucesso", "Venda"));
 		return new ModelAndView("redirect:/vendas/nova");
 	}
 
@@ -157,10 +170,16 @@ public class VendasController {
 		return new ModelAndView("redirect:/vendas/nova");
 	}
 	
-	
+	/**
+	 * Esse metodo faz a busca do item selecionado no autocomplete
+	 * */
 	@PostMapping("/item")
 	public ModelAndView adicionarItem(Long codigoCerveja, String uuid){
 		Cerveja cerveja = cervejas.findOne(codigoCerveja);
+		
+		// monta url final da foto da tabela de intens
+		urlFinalFoto = url.urlBrowser() + "/fotos/" + cerveja.getUrlThumbnailFoto();
+        cerveja.setUrlThumbnailFoto(urlFinalFoto);
 		tabelaItens.adicionarItem(uuid, cerveja, 1);
 		
 		return mvTabelaItensVenda(uuid);
@@ -169,7 +188,6 @@ public class VendasController {
 
 	@PutMapping("/item/{codigoCerveja}")
 	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoCerveja") Cerveja cerveja, @RequestParam Integer quantidade, @RequestParam String uuid){
-		System.out.println(">>>>> UUid "+ uuid +"  Quantidade "+ quantidade + " cerveja " + cerveja);
 		tabelaItens.alterarQuantidadeItens(uuid, cerveja, quantidade);
 		
 		return mvTabelaItensVenda(uuid);
@@ -228,8 +246,14 @@ public class VendasController {
 		// gera um uuid de sessao do usuario, para a venda recuperada caso nao exista
 		setUuid(venda);
 		
+        
 		// para cada item da venda, adiciona na Tabelas Itens da Session, o uuid, o item e a quantidade
 		for(ItemVenda item : venda.getItens()){
+			
+			// monta url final da foto da cerveja
+			urlFinalFoto = url.urlBrowser() + "/fotos/" + item.getCerveja().getUrlThumbnailFoto();
+			item.getCerveja().setUrlThumbnailFoto(urlFinalFoto);
+			
 			tabelaItens.adicionarItem(venda.getUuid(), item.getCerveja(), item.getQuantidade());
 		}
 			
@@ -248,11 +272,11 @@ public class VendasController {
 			cadastroVendaService.cancelar(venda);
 			
 		} catch (AccessDeniedException e) {
-			return new ModelAndView("/403"); //poderia enviar para outro pagina 
+			return new ModelAndView("/403"); //poderia enviar para outra pagina 
 		}
 		
 		//cadastroVendaService.cancelar(venda);
-		attributes.addFlashAttribute("mensagem", "Venda cancelada com sucesso");
+		attributes.addFlashAttribute("mensagem", "Venda cancelada com sucesso!");
 		
 		return new ModelAndView("redirect:/vendas/" + venda.getCodigo());
 				

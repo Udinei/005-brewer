@@ -3,7 +3,7 @@
       xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:th="http://www.thymeleaf.org"
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  layout:decorate="layout/LayoutPadrao"
+  	  layout:decorate="~{layout/LayoutPadrao}"
 	  xmlns:brewer="http://brewer.algaworks.com"
    	  xmlns:data="http://www.thymeleaf.org/extras/data">
 
@@ -122,7 +122,7 @@
 					<tr th:each="cerveja : ${pagina.conteudo}">
 						<td class="text-center">
 							<!-- <img th:src="@{/fotos/thumbnail.{foto}(foto=${cerveja.fotoOrMock})}" class="img-responsive"/>  -->
-							 <img th:src="${cerveja.urlThumbnailFoto}" class="img-responsive"/>
+							 <img id="idThumbnailFoto" th:src="|${urlFinalFoto}${cerveja.urlThumbnailFoto}|" class="img-responsive"  />
 						</td>
 						<td class="text-center" th:text="${cerveja.sku}">AA1234</td>
 						<td th:text="${cerveja.nome}">Cerveja Stella</td>
@@ -156,6 +156,7 @@
 	
 	
  </section>
+ 
 </body>
 
 </html>
