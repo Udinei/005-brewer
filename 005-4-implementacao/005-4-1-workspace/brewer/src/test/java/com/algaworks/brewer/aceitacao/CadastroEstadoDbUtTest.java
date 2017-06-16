@@ -7,10 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
@@ -27,39 +23,42 @@ import com.algaworks.brewer.model.Estado;
 import com.algaworks.brewer.repository.Estados;
 import com.algaworks.brewer.service.CadastroEstadoService;
 
-
 public class CadastroEstadoDbUtTest extends BaseTest { 
+
 	
-	private static DbUnitHelper dbUnitHelper;
-	private static EntityManagerFactory factory;
-	private EntityManager manager;
-		
 	@Autowired
 	private Estados estados;
 
 	@Autowired
 	CadastroEstadoService cadastroEstadoService;
-
+			
+	
 	@BeforeClass
 	public static void initClass() {
-		dbUnitHelper = new DbUnitHelper("META-INF");
-		factory = Persistence.createEntityManagerFactory("IntegracaoDbunitPU");
-		
+			
+		// controlal o tempo maximo em que o teste tem que rodar
 		driver.manage().timeouts().implicitlyWait(12, TimeUnit.SECONDS);
+
 		//  entra na tela de pesquisa
 		driver.get("http://localhost:8080/cidades");
 	}
 
+
 	
 	@Before
 	public void init() {
-		// Os dados utilizados nos testes, como salvar serão removidos apos os testes pela linha de codigo abaixo 
+         // passa informações de conexao de banco para o DBUnit e pasta de acesso do .xml de controle do BD
+		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF");
+		
+		// executa a conexao
+		dbUnitHelper.conectaBD();	
+		
+		// Controla os dados inseridos no banco, que serão removidos apos os testes 
 		dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
-		manager = factory.createEntityManager();
 		
 	}
 	
-	
+
 	@Test
 	public void fluxoPrincipal() throws Exception {
 		
@@ -92,8 +91,7 @@ public class CadastroEstadoDbUtTest extends BaseTest {
 		validaCamposObrigatorios(validaCampos);
 	}
 	
-
-	//@Test
+	
 	public void deveCadastrarUmaNovaCidade() {
 		// seleciona estado Goias
 		WebElement estado = driver.findElement(By.xpath("//select[@name='estado']"));
@@ -215,8 +213,8 @@ public class CadastroEstadoDbUtTest extends BaseTest {
 			driver.findElement(By.xpath("//button[text()='OK']")).click();
 		}
 		
-
-	
+	/** Esse metodo faz um simples teste de verificação da persistencia e injeção do spring (@Autowire) 
+	 * com spring boot, bem como funcionamento do dbunit desfazer no banco as alterações do testes */
 	@Test
 	public void deveInserirUmNovoEstado() throws Exception {
 		Estado estado = new Estado();
@@ -228,9 +226,10 @@ public class CadastroEstadoDbUtTest extends BaseTest {
 	
 	}
 
+
 	
 	@After
 	public void end() {
-		this.manager.close();
+		
 	}
 }

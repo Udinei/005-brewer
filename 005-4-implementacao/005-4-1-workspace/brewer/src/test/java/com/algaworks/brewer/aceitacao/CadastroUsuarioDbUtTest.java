@@ -4,10 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
@@ -23,10 +19,6 @@ import com.algaworks.brewer.service.CadastroUsuarioService;
 
 
 public class CadastroUsuarioDbUtTest extends BaseTest { 
-	
-	private static DbUnitHelper dbUnitHelper;
-	private static EntityManagerFactory factory;
-	private EntityManager manager;
 		
 	@Autowired
 	private Usuarios usuarios;
@@ -36,9 +28,6 @@ public class CadastroUsuarioDbUtTest extends BaseTest {
 
 	@BeforeClass
 	public static void initClass() {
-		dbUnitHelper = new DbUnitHelper("META-INF");
-		factory = Persistence.createEntityManagerFactory("IntegracaoDbunitPU");
-		
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 		//  entra na tela de pesquisa
 		driver.get("http://localhost:8080/usuarios");
@@ -47,9 +36,15 @@ public class CadastroUsuarioDbUtTest extends BaseTest {
 	
 	@Before
 	public void init() {
-		// Os dados utilizados nos testes, como salvar serão removidos apos os testes pela linha de codigo abaixo 
+         // passa informações de conexao de banco para o DBUnit e pasta de acesso do .xml de controle do BD
+		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF");
+		
+		// executa a conexao
+		dbUnitHelper.conectaBD();	
+		
+		// Controla os dados inseridos no banco, que serão removidos apos os testes 
 		dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
-		manager = factory.createEntityManager();
+		
 	}
 	
 	
@@ -182,13 +177,11 @@ public class CadastroUsuarioDbUtTest extends BaseTest {
 	public void preencheCamposDePesquisaParaExclusao(){
 			driver.findElement(By.name("nome")).sendKeys("Maria das dores");
 			driver.findElement(By.name("email")).sendKeys("maria@gmail.com");		
-		}
-		
-
-	
+	}
+			
 	
 	@After
 	public void end() {
-		this.manager.close();
+	
 	}
 }

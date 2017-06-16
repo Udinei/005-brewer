@@ -2,10 +2,6 @@ package com.algaworks.brewer.aceitacao;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
@@ -13,24 +9,22 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.algaworks.brewer.repository.Cervejas;
-import com.algaworks.brewer.service.CadastroCervejaService;
 import com.algaworks.brewer.base.BaseTest;
 import com.algaworks.brewer.base.DbUnitHelper;
+import com.algaworks.brewer.repository.Cervejas;
+import com.algaworks.brewer.service.CadastroCervejaService;
 
 
 public class CadastroVendaCervejaDbUtTest extends BaseTest { 
 	 
-	private static DbUnitHelper dbUnitHelper;
-	private static EntityManagerFactory factory;
-	private EntityManager manager;
-	private static WebDriverWait wait = new WebDriverWait(driver, 10);
-	private static Actions action = new Actions(driver);
+//	private static DbUnitHelper dbUnitHelper;
+//	private static EntityManagerFactory factory;
+//	private EntityManager manager;
+	//private static WebDriverWait wait = new WebDriverWait(driver, 10);
+	//private static Actions action = new Actions(driver);
 	
 	@Autowired
 	private Cervejas cervejas;
@@ -40,9 +34,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 
 	@BeforeClass
 	public static void initClass() {
-		dbUnitHelper = new DbUnitHelper("META-INF");
-		factory = Persistence.createEntityManagerFactory("IntegracaoDbunitPU");
-		
+				
 		// Valido para todo o testes, aguarda até trinta segundos por um determinado
 		// elemento acessivel, legivel ou clicavel no DOM 
 		driver.manage().timeouts().implicitlyWait(40, TimeUnit.SECONDS);
@@ -52,14 +44,15 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 	
 	@Before
 	public void init() {
-		// Os dados utilizados nos testes, como salvar serão removidos apos os testes pela linha de codigo abaixo 
-		//Thread.sleep(2000);
-
+         // passa informações de conexao de banco para o DBUnit e pasta de acesso do .xml de controle do BD
+		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF");
+		
+		// executa a conexao
+		dbUnitHelper.conectaBD();	
+		
+		// Controla os dados inseridos no banco, que serão removidos apos os testes 
 		dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
-	
-		//dbUnitHelper.execute(DatabaseOperation.NONE, "BrewerXmlDBData.xml");
-		manager = factory.createEntityManager();
-		driver.get("http://localhost:8080");
+		
 	}
 	
 	
@@ -355,6 +348,6 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 	
 	@After
 	public void end() {
-		this.manager.close();
+		
 	}
 }
