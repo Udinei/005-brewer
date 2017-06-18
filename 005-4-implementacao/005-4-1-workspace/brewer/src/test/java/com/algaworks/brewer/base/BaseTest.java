@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -19,29 +20,41 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import com.algaworks.brewer.aceitacao.Login;
 import com.algaworks.brewer.util.MessagesUtil;
 
 public class BaseTest  extends BrewerApplicationTest{
 
-
+	protected static DbUnitHelper dbUnitHelper;
 	protected static WebDriver driver;
-	public static Login login = new Login();
 	protected MessagesUtil messagesUtil = new MessagesUtil();
-	//protected static Actions action = new Actions(driver);
+	public static Login login = new Login();
+	protected List<String> infoDB = null;
+	public static WebDriverWait wait;
+	public static Actions action;
+	
+	@Autowired
+	protected Environment environment;
+	
 	
 	public BaseTest() {
 		super();
+		
 	}
 	
 	/** Esse metodo inicia os testes a partir da tela de pesquisa */
 	@BeforeClass
 	public static void setUp() throws Exception {
+		
 		login.setUp();
 		login.loginFluxoPrincipal("","");
 		
 		driver = login.getWebdriver(); 
+		wait = new WebDriverWait(driver, 10);
+		action = new Actions(driver);
 					
 	}
 	
@@ -53,6 +66,19 @@ public class BaseTest  extends BrewerApplicationTest{
     		driver.close();
     		driver.quit();
         }
+        
+   
+    }
+
+    /** Esse metodo recupera as informações de banco do profile ativo no arquivo application-{profile}.properties
+     *  essas informação serao usadas na conexao de banco do dbunit 
+     * */
+    public List<String> setBaseBD(){
+    	String driver = environment.getProperty("spring.datasource.driver-class-name").toString();
+    	String url = environment.getProperty("spring.datasource.url").toString();
+		String username = environment.getProperty("spring.datasource.username").toString();
+		String password = environment.getProperty("spring.datasource.password").toString();
+	    return infoDB = Arrays.asList(driver, url, username, password); 
     }
 
 
@@ -225,9 +251,13 @@ public class BaseTest  extends BrewerApplicationTest{
 	 * @param msgText - mensagem de texto esperada pelo assertEquals do metodo 
 	 */
 	public void validaMsgSucessWithKeyInSpanText(String messagesKey, String entity, String msgText) {
+					
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='"+ msgText + "']")));
 		
-		// valida se msg de sucesso foi exibida		
-		assertEquals(messagesUtil.getMessage(messagesKey, entity), driver.findElement(By.xpath("//span[text()='"+ msgText + "']")).getText());
+		// valida se msg de sucesso foi exibida	
+		 if(element.getText().equals(msgText)){
+				assertEquals(messagesUtil.getMessage(messagesKey, entity), driver.findElement(By.xpath("//span[text()='"+ msgText + "']")).getText());
+		 }
 		
 	}
 

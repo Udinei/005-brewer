@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
-import org.apache.poi.util.SystemOutLogger;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.dataset.IDataSet;
@@ -13,22 +13,38 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 
+/**
+ * Essa classe e responsavel por conectar o DBUnit no banco, aplicar as inserçoes do arquivo BrewerXmlDBData.xml
+ * na base de dados e desfazer as alteções apos os testes. 
+ * Inserir a linha de codigo abaixo no metodo init() das classes de testes para desafazer as alterações dos testes no banco
+ * dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
+ **/
+
 public class DbUnitHelper {
 
 	private Connection conexao;
 	private DatabaseConnection conexaoDBUnit;
 	private String xmlFolder;
+	private List<String> infoBD = null;
+	
+	
+	public DbUnitHelper(List<String> infoBD, String xmlFolder) {
+	    this.infoBD = infoBD;
+	    this.xmlFolder = xmlFolder;
+	}
 
-	public DbUnitHelper(String xmlFolder) {
-		this.xmlFolder = xmlFolder;
+	
+	
+	public void conectaBD() {
 
 		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			conexao = DriverManager.getConnection("jdbc:mysql://localhost/brewer?useSSL=false", "root", "root");
+			Class.forName(getDriverBD()).newInstance();
+			conexao = DriverManager.getConnection(getUrlBD(), getUsername(), getPassword());
+			
 			conexaoDBUnit = new DatabaseConnection(conexao);
 			DatabaseConfig config = conexaoDBUnit.getConfig();
 			
-			
+			// permite que campos com valores null ou vazios ("") sejam utilizados no arquivo da base BrewerXmlBDData.xml 
 			config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true);
 			config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new MySqlDataTypeFactory());
 			
@@ -42,7 +58,7 @@ public class DbUnitHelper {
 			InputStream is = getClass().getResourceAsStream("/" + xmlFolder + "/" + xml);
 			FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
 			IDataSet dataSet = builder.build(is);
-			System.out.println(">>> " +dataSet.toString());
+		
 			operation.execute(conexaoDBUnit, dataSet);
 			
 		} catch (Exception e) {
@@ -58,4 +74,22 @@ public class DbUnitHelper {
 			e.printStackTrace();
 		}
 	}
+
+	public String getDriverBD(){
+		return infoBD.get(0);
+	}
+	
+	public String getUrlBD(){
+		return infoBD.get(1);
+	}
+	
+	public String getUsername(){
+		return infoBD.get(2);
+	}
+
+	public String getPassword(){
+		return infoBD.get(3);
+	}
+
+
 }
