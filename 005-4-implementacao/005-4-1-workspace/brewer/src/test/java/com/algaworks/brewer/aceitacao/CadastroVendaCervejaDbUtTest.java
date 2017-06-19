@@ -2,6 +2,7 @@ package com.algaworks.brewer.aceitacao;
 
 import java.util.concurrent.TimeUnit;
 
+import org.dbunit.operation.CompositeOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
@@ -19,12 +20,8 @@ import com.algaworks.brewer.service.CadastroCervejaService;
 
 
 public class CadastroVendaCervejaDbUtTest extends BaseTest { 
-	 
-//	private static DbUnitHelper dbUnitHelper;
-//	private static EntityManagerFactory factory;
-//	private EntityManager manager;
-	//private static WebDriverWait wait = new WebDriverWait(driver, 10);
-	//private static Actions action = new Actions(driver);
+
+	private String querySQL = "";
 	
 	@Autowired
 	private Cervejas cervejas;
@@ -42,15 +39,21 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 	}
 
 	
+	
 	@Before
 	public void init() {
+		
+		  // zera o autoincremento da tabela venda, para ser consistente com as msg exibidas na tela de venda  
+		  querySQL = "ALTER TABLE venda AUTO_INCREMENT = 0";
+		  
          // passa informações de conexao de banco para o DBUnit e pasta de acesso do .xml de controle do BD
-		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF");
+		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF", querySQL);
 		
 		// executa a conexao
 		dbUnitHelper.conectaBD();	
-		
+
 		// Controla os dados inseridos no banco, que serão removidos apos os testes 
+		//dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
 		dbUnitHelper.execute(DatabaseOperation.CLEAN_INSERT, "BrewerXmlDBData.xml");
 		
 	}
@@ -83,7 +86,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 	
 	
 	public void deveExibirMsgDePrenchimentoCamposObrigatorio() throws InterruptedException{
-		clickLinkMenu("Vendas", wait, action);
+		clickLinkMenu("Vendas");
 		clickLinkItemMenuOrLinkAba("Cadastro de venda");
 		clickButtonSalvarClassName("btn-primary");
 		Thread.sleep(5000);
@@ -95,7 +98,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 
 	public void deveCadastrarUmaNovaVenda() throws InterruptedException {
 		driver.get("http://localhost:8080");
-		clickLinkMenu("Vendas", wait, action);
+		clickLinkMenu("Vendas");
 		clickLinkItemMenuOrLinkAba("Cadastro de venda");
 		preencheFormularioDeDados();
 		clickButtonSalvar();
@@ -108,10 +111,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 
 	private void deveSalvarEnviarVendaPorEmail() throws InterruptedException {
 		clickButtonEditar();
-		//Thread.sleep(500);
-		//wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span[class='caret']")));
 		clickLinkButtonSetaCaret("Salvar e enviar por e-mail");
-		Thread.sleep(500);
 		validaMsgSemChaveExibidaFoiHaMensagem("Venda nº 1 salva com sucesso e e-mail enviado");
 		clickButtonPesquisa();
 	
@@ -169,7 +169,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 	
 	public void deveExcluirUmItemDaVenda() throws InterruptedException{
 		driver.get("http://localhost:8080");
-		clickLinkMenu("Vendas", wait, action);
+		clickLinkMenu("Vendas");
 		Thread.sleep(100);
 		clickLinkItemMenuOrLinkAba("Pesquisa venda", wait, action);
 		clickButtonEditar();
@@ -212,7 +212,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 		
 		// Tenta cancelar venda feita pelo usuario admin
 		Thread.sleep(5000);
-		clickLinkMenu("Vendas", wait, action);
+		clickLinkMenu("Vendas");
 		clickLinkItemMenuOrLinkAba("Pesquisa venda");
 		Thread.sleep(1000);
 		preencheCamposDePesquisa();
@@ -221,7 +221,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 		Thread.sleep(1000);
 		clickButtonCancelar();
 		Thread.sleep(6000);
-		validaMsgSemChaveH2ExibidaFoiHaMensagem("Acesso negado", wait, action); // exibem mensagem 403 acesso negado
+		validaMsgSemChaveH2ExibidaFoiHaMensagem("Acesso negado"); // exibem mensagem 403 acesso negado
 		Thread.sleep(3000);
     	clickButtonClassName("btn-primary"); // volta para pagina de venda
     	
@@ -235,7 +235,7 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 		login.loginFluxoPrincipal("admin@brewer.com","admin");
 		
 		// Tenta cancelar venda feita pelo usuario admin
-		clickLinkMenu("Vendas", wait, action);
+		clickLinkMenu("Vendas");
 		clickLinkItemMenuOrLinkAba("Pesquisa venda");
 		Thread.sleep(1000);
 		preencheCamposDePesquisa();
@@ -246,9 +246,6 @@ public class CadastroVendaCervejaDbUtTest extends BaseTest {
 		clickButtonCancelar();
 		Thread.sleep(2000);
 		validaMsgSemChaveExibidaFoiHaMensagem("Venda cancelada com sucesso!");
-//		validaMsgSemChaveH2ExibidaFoiHaMensagem("Acesso negado"); // exibem mensagem 403 acesso negado
-//		Thread.sleep(5000);
-//    	clickButtonClassName("btn-primary"); // volta para pagina de venda
     	clickLogOut(); // sai do sistema
 	}
 

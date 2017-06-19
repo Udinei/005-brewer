@@ -38,7 +38,7 @@ public class CadastroClienteDbUtTest extends BaseTest {
 	@Before
 	public void init() {
         // passa informações de conexao de banco para o DBUnit e pasta de acesso do .xml de controle do BD
-		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF");
+		dbUnitHelper = new DbUnitHelper(setBaseBD(), "META-INF", "");
 		
 		// executa a conexao
 		dbUnitHelper.conectaBD();	

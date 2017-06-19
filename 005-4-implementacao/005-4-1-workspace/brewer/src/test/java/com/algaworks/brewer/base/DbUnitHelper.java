@@ -26,11 +26,13 @@ public class DbUnitHelper {
 	private DatabaseConnection conexaoDBUnit;
 	private String xmlFolder;
 	private List<String> infoBD = null;
+	private String querySql = "";
 	
 	
-	public DbUnitHelper(List<String> infoBD, String xmlFolder) {
+	public DbUnitHelper(List<String> infoBD, String xmlFolder, String querySql) {
 	    this.infoBD = infoBD;
 	    this.xmlFolder = xmlFolder;
+	    this.querySql = querySql;
 	}
 
 	
@@ -58,13 +60,25 @@ public class DbUnitHelper {
 			InputStream is = getClass().getResourceAsStream("/" + xmlFolder + "/" + xml);
 			FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
 			IDataSet dataSet = builder.build(is);
-		
+			
+			// executa o sql caso o teste informe algum
+			executeSql();
+			
 			operation.execute(conexaoDBUnit, dataSet);
 			
 		} catch (Exception e) {
 			throw new RuntimeException("Erro executando DbUnit", e);
 		}
 	}
+
+
+	/** Esse metodo executa um SQL na base de dados antes de executar os testes, a classe informa o sql*/
+	private void executeSql() throws SQLException {
+		if(!querySql.isEmpty()){
+		   conexaoDBUnit.getConnection().prepareStatement(querySql).execute();
+		}
+	}
+	
 
 	public void close() {
 		try {

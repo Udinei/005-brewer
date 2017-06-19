@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.validation.constraints.AssertTrue;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.openqa.selenium.By;
@@ -224,14 +226,12 @@ public class BaseTest  extends BrewerApplicationTest{
 		 }
 	}
 	
-	public void clickLinkMenu(String nomeMenu, WebDriverWait wait, Actions action){
+	public void clickLinkMenu(String nomeMenu){
 		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='"+ nomeMenu +"']")));
 		 if(element.isDisplayed()){
 				//click
 				action.click(element).perform();
 		 }
-		//driver.findElement(By.xpath("//span[text()='"+ nomeMenu +"']")).click();
-		                            
    }
 
 	public void clickLink(String nomeText){
@@ -251,16 +251,11 @@ public class BaseTest  extends BrewerApplicationTest{
 	 * @param msgText - mensagem de texto esperada pelo assertEquals do metodo 
 	 */
 	public void validaMsgSucessWithKeyInSpanText(String messagesKey, String entity, String msgText) {
-					
-		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='"+ msgText + "']")));
-		
-		// valida se msg de sucesso foi exibida	
-		 if(element.getText().equals(msgText)){
-				assertEquals(messagesUtil.getMessage(messagesKey, entity), driver.findElement(By.xpath("//span[text()='"+ msgText + "']")).getText());
-		 }
+		validaMsgKeyInElementSpanText(messagesKey, entity, msgText);
 		
 	}
 
+	
 	/**
 	 * Esse metodo valida a mensagem exibida ao usuario, quando a entidade já existe 
 	 * @param messageKey - chave ndo arquivo properties da mensagem
@@ -297,7 +292,12 @@ public class BaseTest  extends BrewerApplicationTest{
 	 * @param msgText - mensagem a ser verificada se foi exibida
 	 * */
 	public void validaMsgSemChaveExibidaFoiHaMensagem(String msgText){
-		assertEquals(msgText,  driver.findElement(By.xpath("//span[contains(text(),'"+ msgText +"')]")).getText());
+
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'"+ msgText +"')]")));
+		 
+		 if(element.getText().equals(msgText)){
+			 assertTrue(true);
+		 }
 
 	}
 	
@@ -305,7 +305,7 @@ public class BaseTest  extends BrewerApplicationTest{
 	 * Esse metodo verifica se foi exibido um elemento text H2 em uma mensagem
 	 * @param msgText - mensagem a ser verificada se foi exibida 
 	 * */
-	public void validaMsgSemChaveH2ExibidaFoiHaMensagem(String msgText, WebDriverWait wait, Actions action){
+	public void validaMsgSemChaveH2ExibidaFoiHaMensagem(String msgText){
 		
 		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2[class='aw-error-panel__title']")));
 	 
@@ -322,18 +322,6 @@ public class BaseTest  extends BrewerApplicationTest{
 	}
 	
 	
-	/**
-	 * Esse metodo valida a mensagem de execao exibida ao usuario, ato tentar salvar uma entidade ja cadastrada 
-	 * @param messageKey - chave ndo arquivo properties da mensagem
-	 * @param entity - nome da entidade que esta sendo salva
-	 * @param msgText - mensagem de texto esperada pelo assertEquals do metodo 
-	 */
-	public void validaMsgDeExecaoExibidaHaoUsuario(String messagesKey, String nomeCampo, String entity) {
-		// valida se msg de sucesso ao salvar foi exibida		
-		assertEquals(messagesUtil.getMessage(messagesKey, nomeCampo, entity ), driver.findElement(By.xpath("//span[text()='"+ messagesUtil.getMessage(messagesKey, nomeCampo, entity) +"']")).getText());
-		
-	}
-
 	/**
 	 * Esse metodo seleciona um comboBox e seu item caso esteja visivel
 	 * @param nameCampo - nome do campo combobox
@@ -394,10 +382,6 @@ public class BaseTest  extends BrewerApplicationTest{
 					assertTrue(isElementPresent(By.xpath("//span[text()='" + nomeCampoForm.get(i) + " é obrigatória']")));
 				}
 		}
-		
-	   	
-			
-		
 		
 	}
 	
@@ -553,5 +537,15 @@ public class BaseTest  extends BrewerApplicationTest{
 		return driver.findElement(By.xpath("//text()[contains(.,'" + text +"')]/ancestor::div[1]")).getText();
 	 
 	}
+	
+	private void validaMsgKeyInElementSpanText(String messagesKey, String entity, String msgText) {
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='"+ msgText + "']")));
+		
+		// valida se msg de sucesso foi exibida	
+		 if(element.getText().equals(msgText) && messagesUtil.getMessage(messagesKey, entity).equals(element.getText())){
+			 assertTrue(true);
+		 }
+	}
+
 
 }
